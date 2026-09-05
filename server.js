@@ -6,6 +6,9 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Temporary order storage
+const orders = {};
+
 app.get("/", (req, res) => {
   res.json({
     shop: "SINU TOPUP SHOP",
@@ -13,6 +16,7 @@ app.get("/", (req, res) => {
   });
 });
 
+// Create Order
 app.post("/api/order", (req, res) => {
   const {
     game,
@@ -32,16 +36,41 @@ app.post("/api/order", (req, res) => {
 
   const orderId = "SINU-" + Date.now();
 
+  orders[orderId] = {
+    orderId,
+    game,
+    server,
+    uid,
+    package: packageName,
+    price,
+    payment,
+    status: "PENDING",
+    createdAt: new Date().toISOString()
+  };
+
   res.json({
     success: true,
-    orderId: orderId,
+    orderId,
     status: "PENDING",
-    game: game,
-    server: server,
-    uid: uid,
-    package: packageName,
-    price: price,
-    payment: payment
+    message: "Order Created Successfully"
+  });
+});
+
+// Check Order Status
+app.get("/api/order/:orderId", (req, res) => {
+  const orderId = req.params.orderId;
+  const order = orders[orderId];
+
+  if (!order) {
+    return res.status(404).json({
+      success: false,
+      message: "Order পাওয়া যায়নি"
+    });
+  }
+
+  res.json({
+    success: true,
+    order
   });
 });
 
