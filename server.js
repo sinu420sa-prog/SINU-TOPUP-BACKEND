@@ -16,12 +16,10 @@ app.use(express.json());
 ============================== */
 
 app.get("/", (req, res) => {
-
   res.json({
     shop: "SINU TOPUP SHOP",
     status: "online"
   });
-
 });
 
 
@@ -40,56 +38,25 @@ app.post("/api/order", (req, res) => {
     payment
   } = req.body;
 
-
-  /* Validate order */
-
-  if (
-    !game ||
-    !uid ||
-    !packageName ||
-    !price ||
-    !payment
-  ) {
-
+  if (!game || !uid || !packageName || !price || !payment) {
     return res.status(400).json({
-
       success: false,
-
       message: "সব তথ্য দিন"
-
     });
-
   }
 
-
-  /* Create unique Order ID */
-
-  const orderId =
-    "SINU-" + Date.now();
-
-
-  /* Send order response */
+  const orderId = "SINU-" + Date.now();
 
   res.json({
-
     success: true,
-
     orderId: orderId,
-
     status: "PENDING",
-
     game: game,
-
     server: server,
-
     uid: uid,
-
     package: packageName,
-
     price: price,
-
     payment: payment
-
   });
 
 });
@@ -99,13 +66,11 @@ app.post("/api/order", (req, res) => {
    SERVER
 ============================== */
 
-const PORT =
-  process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 
-
-app.listen(
-  PORT,
-  "0.0.0.0",
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("SINU TOPUP BACKEND RUNNING");
+});  "0.0.0.0",
   () => {
 
     console.log(
