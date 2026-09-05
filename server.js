@@ -3,17 +3,8 @@ const cors = require("cors");
 
 const app = express();
 
-/* ==============================
-   MIDDLEWARE
-============================== */
-
 app.use(cors());
 app.use(express.json());
-
-
-/* ==============================
-   HOME / STATUS
-============================== */
 
 app.get("/", (req, res) => {
   res.json({
@@ -22,19 +13,43 @@ app.get("/", (req, res) => {
   });
 });
 
-
-/* ==============================
-   CREATE ORDER
-============================== */
-
 app.post("/api/order", (req, res) => {
-
   const {
     game,
     server,
     uid,
     packageName,
     price,
+    payment
+  } = req.body;
+
+  if (!game || !uid || !packageName || !price || !payment) {
+    return res.status(400).json({
+      success: false,
+      message: "সব তথ্য দিন"
+    });
+  }
+
+  const orderId = "SINU-" + Date.now();
+
+  res.json({
+    success: true,
+    orderId: orderId,
+    status: "PENDING",
+    game: game,
+    server: server,
+    uid: uid,
+    package: packageName,
+    price: price,
+    payment: payment
+  });
+});
+
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, "0.0.0.0", () => {
+  console.log("SINU TOPUP BACKEND RUNNING");
+});    price,
     payment
   } = req.body;
 
