@@ -1,0 +1,1408 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>SINU TOPUP SHOP</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  min-height:100vh;
+  background:
+    radial-gradient(circle at top left,#5428a8 0%,transparent 35%),
+    radial-gradient(circle at bottom right,#008cba 0%,transparent 35%),
+    linear-gradient(135deg,#090014,#12002b,#001b32);
+  color:#fff;
+  padding:20px;
+}
+
+.container{
+  max-width:900px;
+  margin:auto;
+}
+
+.header{
+  text-align:center;
+  padding:25px 15px;
+  margin-bottom:20px;
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:25px;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(15px);
+  box-shadow:0 10px 40px rgba(0,0,0,.35);
+}
+
+.header h1{
+  font-size:32px;
+  font-weight:900;
+  background:linear-gradient(90deg,#00eaff,#8b5cff,#ff3cac);
+  -webkit-background-clip:text;
+  color:transparent;
+}
+
+.header p{
+  margin-top:8px;
+  color:#d8d8e8;
+}
+
+.notice{
+  margin-top:15px;
+  padding:14px;
+  border-radius:15px;
+  background:linear-gradient(
+    135deg,
+    rgba(0,234,255,.12),
+    rgba(139,92,255,.12)
+  );
+  border:1px solid rgba(0,234,255,.2);
+}
+
+.card{
+  background:rgba(255,255,255,.075);
+  border:1px solid rgba(255,255,255,.13);
+  border-radius:22px;
+  padding:20px;
+  margin-bottom:18px;
+  backdrop-filter:blur(15px);
+  box-shadow:0 10px 35px rgba(0,0,0,.25);
+}
+
+.card h2{
+  font-size:20px;
+  margin-bottom:15px;
+}
+
+.game-grid,
+.server-grid,
+.payment-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.option{
+  padding:16px;
+  border-radius:16px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  cursor:pointer;
+  transition:.2s;
+  text-align:center;
+}
+
+.option:hover{
+  transform:translateY(-2px);
+  border-color:#00eaff;
+}
+
+.option.active{
+  border:2px solid #00eaff;
+  background:rgba(0,234,255,.12);
+  box-shadow:0 0 20px rgba(0,234,255,.15);
+}
+
+.package-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+}
+
+.package{
+  position:relative;
+  padding:14px 8px;
+  border-radius:15px;
+  background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12);
+  cursor:pointer;
+  text-align:center;
+  transition:.2s;
+}
+
+.package:hover{
+  transform:translateY(-2px);
+}
+
+.package.active{
+  border:2px solid #00eaff;
+  background:rgba(0,234,255,.12);
+}
+
+.package strong{
+  display:block;
+  font-size:17px;
+}
+
+.package span{
+  display:block;
+  margin-top:6px;
+  color:#00eaff;
+  font-weight:bold;
+}
+
+.badge{
+  position:absolute;
+  top:-8px;
+  right:-5px;
+  background:linear-gradient(90deg,#ff2d55,#ff8a00);
+  padding:4px 7px;
+  border-radius:8px;
+  font-size:10px;
+  font-weight:bold;
+}
+
+.field{
+  margin-top:15px;
+}
+
+.field label{
+  display:block;
+  margin-bottom:8px;
+  color:#ddd;
+  font-weight:bold;
+}
+
+.field input{
+  width:100%;
+  padding:14px;
+  border:none;
+  outline:none;
+  border-radius:13px;
+  background:rgba(0,0,0,.3);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.15);
+  font-size:16px;
+}
+
+.field input:focus{
+  border-color:#00eaff;
+}
+
+.payment-option{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:15px;
+  border-radius:16px;
+  background:rgba(255,255,255,.06);
+  border:2px solid rgba(255,255,255,.12);
+  cursor:pointer;
+}
+
+.payment-option.active{
+  border-color:#00eaff;
+  background:rgba(0,234,255,.1);
+}
+
+.payment-logo{
+  width:55px;
+  height:55px;
+  border-radius:13px;
+  background:#fff;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+}
+
+.payment-logo img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+}
+
+.payment-text strong{
+  display:block;
+  font-size:18px;
+}
+
+.payment-text small{
+  color:#aaa;
+}
+
+.bkash-box{
+  margin-top:15px;
+  padding:18px;
+  border-radius:18px;
+  background:linear-gradient(
+    135deg,
+    rgba(226,0,116,.14),
+    rgba(255,255,255,.05)
+  );
+  border:1px solid rgba(226,0,116,.3);
+}
+
+.bkash-title{
+  font-size:18px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+
+.bkash-number{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+
+.bkash-number span{
+  flex:1;
+  padding:13px;
+  border-radius:12px;
+  background:rgba(0,0,0,.3);
+  font-size:19px;
+  font-weight:bold;
+  letter-spacing:1px;
+}
+
+.copy-btn{
+  padding:13px 15px;
+  border:none;
+  border-radius:12px;
+  background:#e2136e;
+  color:#fff;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.payment-instructions{
+  margin-top:14px;
+  line-height:1.8;
+  color:#ddd;
+}
+
+.amount-box{
+  margin-top:15px;
+  padding:15px;
+  text-align:center;
+  border-radius:15px;
+  background:rgba(0,234,255,.08);
+  border:1px solid rgba(0,234,255,.2);
+}
+
+.amount-box span{
+  color:#00eaff;
+  font-size:25px;
+  font-weight:900;
+}
+
+.warning{
+  margin-top:12px;
+  padding:12px;
+  border-radius:12px;
+  background:rgba(255,170,0,.08);
+  border:1px solid rgba(255,170,0,.25);
+  color:#ffd37a;
+  font-size:13px;
+  line-height:1.6;
+}
+
+.order-btn{
+  width:100%;
+  padding:17px;
+  margin-top:20px;
+  border:none;
+  border-radius:16px;
+  cursor:pointer;
+  color:#fff;
+  font-size:18px;
+  font-weight:900;
+  background:linear-gradient(90deg,#00aaff,#6d4aff,#d12cff);
+  box-shadow:0 8px 25px rgba(0,170,255,.25);
+  transition:.2s;
+}
+
+.order-btn:hover{
+  transform:translateY(-2px);
+}
+
+.order-btn:disabled{
+  opacity:.6;
+  cursor:not-allowed;
+  transform:none;
+}
+
+.status-box{
+  display:none;
+  margin-top:18px;
+  padding:18px;
+  border-radius:18px;
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.15);
+  line-height:1.8;
+}
+
+.support{
+  text-align:center;
+}
+
+.support a{
+  display:inline-block;
+  margin:5px;
+  padding:12px 18px;
+  border-radius:12px;
+  text-decoration:none;
+  color:#fff;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+}
+
+.footer{
+  text-align:center;
+  color:#888;
+  padding:20px 0;
+  font-size:13px;
+}
+
+@media(max-width:650px){
+
+  body{
+    padding:10px;
+  }
+
+  .header h1{
+    font-size:26px;
+  }
+
+  .package-grid{
+    grid-template-columns:repeat(2,1fr);
+  }
+
+  .game-grid,
+  .server-grid{
+    grid-template-columns:1fr;
+  }
+
+  .bkash-number{
+    flex-direction:column;
+  }
+
+  .bkash-number span,
+  .copy-btn{
+    width:100%;
+    text-align:center;
+  }
+
+}
+
+</style>
+</head>
+
+
+<body>
+
+<div class="container">
+
+
+<!-- HEADER -->
+
+<div class="header">
+
+<h1>🎮 SINU TOPUP SHOP</h1>
+
+<p>
+Fast • Secure • Easy Gaming Top-Up
+</p>
+
+<div class="notice">
+
+⚡ <b>Instant Gaming Top-Up</b><br>
+
+নিরাপদ ও দ্রুত সার্ভিস
+
+</div>
+
+</div>
+
+
+<!-- GAME -->
+
+<div class="card">
+
+<h2>🎮 Select Game</h2>
+
+<div class="game-grid">
+
+
+<div
+class="option active"
+onclick="selectGame('Free Fire BD',this)"
+>
+
+🔥<br>
+
+<b>Free Fire BD</b>
+
+</div>
+
+
+<div
+class="option"
+onclick="selectGame('PUBG Mobile',this)"
+>
+
+🎯<br>
+
+<b>PUBG Mobile</b>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- SERVER -->
+
+<div class="card">
+
+<h2>🌍 Select Server</h2>
+
+<div class="server-grid">
+
+
+<div
+class="option active"
+onclick="selectServer('🇧🇩 Bangladesh',this)"
+>
+
+🇧🇩<br>
+
+<b>Bangladesh</b>
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- PLAYER -->
+
+<div class="card">
+
+<h2>👤 Player Information</h2>
+
+<div class="field">
+
+<label>Player UID / ID</label>
+
+<input
+id="uid"
+type="text"
+inputmode="numeric"
+placeholder="আপনার Player ID লিখুন"
+>
+
+</div>
+
+
+<div class="warning">
+
+⚠️ বিঃদ্রঃ Player ID ভুল হলে SINU TOPUP SHOP কর্তৃপক্ষ দায়ী নয়।
+অর্ডার করার আগে আপনার Player ID ভালোভাবে যাচাই করে নিন।
+
+</div>
+
+</div>
+
+
+<!-- PACKAGE -->
+
+<div class="card">
+
+<h2>💎 Select Package</h2>
+
+<div
+id="packageGrid"
+class="package-grid"
+></div>
+
+</div>
+
+
+<!-- PAYMENT -->
+
+<div class="card">
+
+<h2>💳 Payment Method</h2>
+
+
+<div class="payment-grid">
+
+
+<div
+class="payment-option active"
+onclick="selectPayment('bKash',this)"
+>
+
+
+<div class="payment-logo">
+
+<img
+src="1000120050.webp"
+alt="bKash"
+>
+
+</div>
+
+
+<div class="payment-text">
+
+<strong>bKash</strong>
+
+<small>
+Pay with bKash
+</small>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+<!-- BKASH -->
+
+<div class="bkash-box">
+
+
+<div class="bkash-title">
+
+📱 bKash Payment
+
+</div>
+
+
+<div class="bkash-number">
+
+<span id="bkashNumber">
+01860913724
+</span>
+
+
+<button
+type="button"
+class="copy-btn"
+onclick="copyBkashNumber()"
+>
+
+Copy
+
+</button>
+
+</div>
+
+
+<!-- AMOUNT -->
+
+<div class="amount-box">
+
+আপনাকে পাঠাতে হবে
+
+<br>
+
+<span>
+
+৳<span id="payAmount">0</span>
+
+</span>
+
+</div>
+
+
+<!-- INSTRUCTIONS -->
+
+<div class="payment-instructions">
+
+<b>পেমেন্ট করার নিয়ম:</b><br>
+
+1️⃣ bKash App খুলুন<br>
+
+2️⃣ <b>Send Money</b> নির্বাচন করুন<br>
+
+3️⃣ এই নম্বরে টাকা পাঠান:
+<b>01860913724</b><br>
+
+4️⃣ উপরের দেখানো
+<b>সঠিক Amount</b> পাঠান<br>
+
+5️⃣ Payment করার পর
+Transaction ID নিচে দিন
+
+</div>
+
+
+<!-- TRX ID -->
+
+<div class="field">
+
+<label>
+Transaction ID (TrxID)
+</label>
+
+<input
+id="trxId"
+type="text"
+placeholder="যেমন: 9A1B2C3D4E"
+autocomplete="off"
+>
+
+</div>
+
+
+<div class="warning">
+
+🔐 শুধুমাত্র Transaction ID দিলেই Payment Verified হবে না।
+আপনার Payment যাচাই করার পর Admin অর্ডারটি Processing/Completed করবে।
+
+</div>
+
+
+</div>
+
+</div>
+
+
+<!-- ORDER -->
+
+<div class="card">
+
+<h2>🛒 Order Summary</h2>
+
+
+<div id="summary">
+
+Game: Free Fire BD<br>
+
+Server: 🇧🇩 Bangladesh<br>
+
+Package: Not Selected<br>
+
+Payment: bKash<br>
+
+Total: ৳0
+
+</div>
+
+
+<button
+class="order-btn"
+onclick="placeOrder()"
+>
+
+🚀 PLACE ORDER
+
+</button>
+
+
+<div
+id="statusBox"
+class="status-box"
+></div>
+
+
+</div>
+
+
+<!-- SUPPORT -->
+
+<div class="card support">
+
+<h2>💬 Support</h2>
+
+
+<a
+href="https://wa.me/8801307122864"
+target="_blank"
+>
+
+💬 WhatsApp
+
+</a>
+
+
+<a
+href="tel:+8801307122864"
+>
+
+📞 Call
+
+</a>
+
+
+</div>
+
+
+<!-- FOOTER -->
+
+<div class="footer">
+
+© 2026 SINU TOPUP SHOP • All Rights Reserved
+
+</div>
+
+
+</div>
+
+
+<script>
+
+
+const API_URL =
+"https://sinu-topup-backend.onrender.com";
+
+
+const BKASH_NUMBER =
+"01860913724";
+
+
+let currentGame =
+"Free Fire BD";
+
+
+let currentServer =
+"🇧🇩 Bangladesh";
+
+
+let selectedPackage =
+"";
+
+
+let selectedPrice =
+0;
+
+
+let selectedPayment =
+"bKash";
+
+
+
+/* FREE FIRE */
+
+const freeFirePackages = [
+
+["25 Diamonds",22],
+
+["50 Diamonds",38],
+
+["100 Diamonds",70],
+
+["115 Diamonds",79],
+
+["240 Diamonds",155],
+
+["355 Diamonds",225],
+
+["480 Diamonds",315],
+
+["505 Diamonds",340],
+
+["610 Diamonds",399,"POPULAR"],
+
+["850 Diamonds",550],
+
+["1090 Diamonds",699],
+
+["1240 Diamonds",799],
+
+["1850 Diamonds",1170],
+
+["2530 Diamonds",1599,"HOT"],
+
+["Weekly Lite",39],
+
+["Weekly",155],
+
+["Monthly",780],
+
+["Weekly + Monthly",935]
+
+];
+
+
+
+/* PUBG */
+
+const pubgPackages = [
+
+["60 UC",125],
+
+["120 UC",240],
+
+["180 UC",350],
+
+["240 UC",465],
+
+["325 UC",620,"POPULAR"],
+
+["385 UC",735],
+
+["660 UC",1240],
+
+["720 UC",1350],
+
+["985 UC",1850],
+
+["1800 UC",3300],
+
+["3850 UC",6900],
+
+["8100 UC",13900,"HOT"]
+
+];
+
+
+
+/* RENDER PACKAGES */
+
+function renderPackages(){
+
+
+const grid =
+document.getElementById("packageGrid");
+
+
+const packages =
+currentGame === "Free Fire BD"
+? freeFirePackages
+: pubgPackages;
+
+
+grid.innerHTML = "";
+
+
+selectedPackage = "";
+
+selectedPrice = 0;
+
+
+document.getElementById(
+"payAmount"
+).textContent = "0";
+
+
+
+packages.forEach(item=>{
+
+
+const name = item[0];
+
+const price = item[1];
+
+const badge = item[2];
+
+
+const div =
+document.createElement("div");
+
+
+div.className =
+"package";
+
+
+div.innerHTML = `
+
+${
+badge
+? `<span class="badge">${badge}</span>`
+: ""
+}
+
+<strong>${name}</strong>
+
+<span>৳${price}</span>
+
+`;
+
+
+
+div.onclick =
+function(){
+
+
+document
+.querySelectorAll(".package")
+.forEach(x =>
+x.classList.remove("active")
+);
+
+
+div.classList.add("active");
+
+
+selectedPackage =
+name;
+
+
+selectedPrice =
+price;
+
+
+document.getElementById(
+"payAmount"
+).textContent =
+price;
+
+
+updateSummary();
+
+};
+
+
+grid.appendChild(div);
+
+
+});
+
+
+}
+
+
+
+/* SELECT GAME */
+
+function selectGame(game,element){
+
+
+currentGame =
+game;
+
+
+document
+.querySelectorAll(
+".game-grid .option"
+)
+.forEach(x =>
+x.classList.remove("active")
+);
+
+
+element.classList.add("active");
+
+
+renderPackages();
+
+
+updateSummary();
+
+}
+
+
+
+/* SELECT SERVER */
+
+function selectServer(server,element){
+
+
+currentServer =
+server;
+
+
+document
+.querySelectorAll(
+".server-grid .option"
+)
+.forEach(x =>
+x.classList.remove("active")
+);
+
+
+element.classList.add("active");
+
+
+updateSummary();
+
+}
+
+
+
+/* SELECT PAYMENT */
+
+function selectPayment(payment,element){
+
+
+selectedPayment =
+payment;
+
+
+document
+.querySelectorAll(
+".payment-option"
+)
+.forEach(x =>
+x.classList.remove("active")
+);
+
+
+element.classList.add("active");
+
+
+updateSummary();
+
+}
+
+
+
+/* SUMMARY */
+
+function updateSummary(){
+
+
+document.getElementById(
+"summary"
+).innerHTML = `
+
+Game: ${currentGame}<br>
+
+Server: ${currentServer}<br>
+
+Package:
+${selectedPackage || "Not Selected"}<br>
+
+Payment:
+${selectedPayment}<br>
+
+Total:
+৳${selectedPrice}
+
+`;
+
+}
+
+
+
+/* COPY BKASH */
+
+async function copyBkashNumber(){
+
+
+try{
+
+
+await navigator.clipboard.writeText(
+BKASH_NUMBER
+);
+
+
+alert(
+"bKash Number Copied! ✅"
+);
+
+
+}catch(error){
+
+
+const temp =
+document.createElement("input");
+
+
+temp.value =
+BKASH_NUMBER;
+
+
+document.body.appendChild(temp);
+
+
+temp.select();
+
+
+document.execCommand("copy");
+
+
+temp.remove();
+
+
+alert(
+"bKash Number Copied! ✅"
+);
+
+
+}
+
+}
+
+
+
+/* PLACE ORDER */
+
+async function placeOrder(){
+
+
+const uid =
+document
+.getElementById("uid")
+.value
+.trim();
+
+
+const trxId =
+document
+.getElementById("trxId")
+.value
+.trim();
+
+
+
+if(!uid){
+
+alert(
+"Player UID দিন ❌"
+);
+
+return;
+
+}
+
+
+
+if(!selectedPackage){
+
+alert(
+"একটি Package Select করুন ❌"
+);
+
+return;
+
+}
+
+
+
+if(!selectedPrice){
+
+alert(
+"Package Price পাওয়া যায়নি ❌"
+);
+
+return;
+
+}
+
+
+
+if(!selectedPayment){
+
+alert(
+"Payment Method Select করুন ❌"
+);
+
+return;
+
+}
+
+
+
+if(!trxId){
+
+alert(
+"Payment করার পর Transaction ID দিন ❌"
+);
+
+return;
+
+}
+
+
+
+const button =
+document.querySelector(
+".order-btn"
+);
+
+
+button.disabled =
+true;
+
+
+button.textContent =
+"⏳ Creating Order...";
+
+
+
+try{
+
+
+const response =
+await fetch(
+
+API_URL + "/api/order",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":
+"application/json"
+
+},
+
+body:JSON.stringify({
+
+game:
+currentGame,
+
+server:
+currentServer,
+
+uid:
+uid,
+
+packageName:
+selectedPackage,
+
+price:
+selectedPrice,
+
+payment:
+selectedPayment,
+
+trxId:
+trxId
+
+})
+
+}
+
+);
+
+
+
+const data =
+await response.json();
+
+
+
+if(
+!response.ok ||
+!data.success
+){
+
+throw new Error(
+
+data.message ||
+"Order failed"
+
+);
+
+}
+
+
+
+document.getElementById(
+"statusBox"
+).style.display =
+"block";
+
+
+
+document.getElementById(
+"statusBox"
+).innerHTML = `
+
+<h3>
+✅ Order Created Successfully!
+</h3>
+
+<br>
+
+<b>Order ID:</b>
+${data.orderId}<br>
+
+<b>Game:</b>
+${currentGame}<br>
+
+<b>Server:</b>
+${currentServer}<br>
+
+<b>UID:</b>
+${uid}<br>
+
+<b>Package:</b>
+${selectedPackage}<br>
+
+<b>Payment:</b>
+${selectedPayment}<br>
+
+<b>Amount:</b>
+৳${selectedPrice}<br>
+
+<b>TrxID:</b>
+${trxId}<br>
+
+<b>Status:</b>
+PENDING
+
+<br><br>
+
+🔐 Payment verification শেষ হলে
+আপনার Order Processing/Completed হবে।
+
+`;
+
+
+
+document.getElementById(
+"statusBox"
+).scrollIntoView({
+
+behavior:"smooth",
+
+block:"center"
+
+});
+
+
+
+}catch(error){
+
+
+alert(
+
+"Order তৈরি করা যায়নি ❌\n\n" +
+error.message
+
+);
+
+
+
+}finally{
+
+
+button.disabled =
+false;
+
+
+button.textContent =
+"🚀 PLACE ORDER";
+
+
+}
+
+}
+
+
+
+/* START */
+
+renderPackages();
+
+updateSummary();
+
+
+</script>
+
+</body>
+</html>
