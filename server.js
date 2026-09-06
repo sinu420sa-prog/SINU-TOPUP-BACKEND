@@ -51,15 +51,25 @@ app.get("/api/goxtop/balance", async (req, res) => {
       {
         method: "GET",
         headers: {
-          "x-api-key": GOXTOP_API_KEY
+          "x-api-key": GOXTOP_API_KEY,
+          "Accept": "application/json"
         }
       }
     );
 
-    const data = await response.json();
+    const text = await response.text();
+
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
 
     res.status(response.status).json({
       success: response.ok,
+      httpStatus: response.status,
       data
     });
 
@@ -68,7 +78,8 @@ app.get("/api/goxtop/balance", async (req, res) => {
 
     res.status(500).json({
       success: false,
-      message: "GoXtop connection failed"
+      message: "GoXtop connection failed",
+      error: error.message
     });
   }
 });
@@ -91,15 +102,25 @@ app.get("/api/goxtop/games", async (req, res) => {
       {
         method: "GET",
         headers: {
-          "x-api-key": GOXTOP_API_KEY
+          "x-api-key": GOXTOP_API_KEY,
+          "Accept": "application/json"
         }
       }
     );
 
-    const data = await response.json();
+    const text = await response.text();
+
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
 
     res.status(response.status).json({
       success: response.ok,
+      httpStatus: response.status,
       data
     });
 
@@ -108,7 +129,8 @@ app.get("/api/goxtop/games", async (req, res) => {
 
     res.status(500).json({
       success: false,
-      message: "GoXtop connection failed"
+      message: "GoXtop connection failed",
+      error: error.message
     });
   }
 });
@@ -129,19 +151,31 @@ app.get("/api/goxtop/products/:gameCode", async (req, res) => {
     const gameCode = req.params.gameCode;
 
     const response = await fetch(
-      GOXTOP_BASE_URL + "/products/" + encodeURIComponent(gameCode),
+      GOXTOP_BASE_URL +
+        "/products/" +
+        encodeURIComponent(gameCode),
       {
         method: "GET",
         headers: {
-          "x-api-key": GOXTOP_API_KEY
+          "x-api-key": GOXTOP_API_KEY,
+          "Accept": "application/json"
         }
       }
     );
 
-    const data = await response.json();
+    const text = await response.text();
+
+    let data;
+
+    try {
+      data = JSON.parse(text);
+    } catch {
+      data = text;
+    }
 
     res.status(response.status).json({
       success: response.ok,
+      httpStatus: response.status,
       data
     });
 
@@ -150,7 +184,8 @@ app.get("/api/goxtop/products/:gameCode", async (req, res) => {
 
     res.status(500).json({
       success: false,
-      message: "GoXtop connection failed"
+      message: "GoXtop connection failed",
+      error: error.message
     });
   }
 });
