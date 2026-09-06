@@ -7,15 +7,18 @@ app.use(cors());
 app.use(express.json());
 
 // ===============================
-// CONFIG
+// GOXTOP CONFIG
 // ===============================
 
 const GOXTOP_API_KEY = process.env.GOXTOP_API_KEY;
 const GOXTOP_SECRET_KEY = process.env.GOXTOP_SECRET_KEY;
 
-const GOXTOP_BASE_URL = "https://goxtop.com/api.v.1";
+const GOXTOP_BASE_URL = "https://goxtop.com";
 
-// Temporary order storage
+// ===============================
+// TEMPORARY ORDER STORAGE
+// ===============================
+
 const orders = {};
 
 // Admin password
@@ -34,7 +37,7 @@ app.get("/", (req, res) => {
 });
 
 // ===============================
-// GOXTOP BALANCE TEST
+// GOXTOP BALANCE
 // ===============================
 
 app.get("/api/goxtop/balance", async (req, res) => {
@@ -47,7 +50,7 @@ app.get("/api/goxtop/balance", async (req, res) => {
     }
 
     const response = await fetch(
-      GOXTOP_BASE_URL + "/balance",
+      GOXTOP_BASE_URL + "/api.v.1/balance",
       {
         method: "GET",
         headers: {
@@ -85,7 +88,7 @@ app.get("/api/goxtop/balance", async (req, res) => {
 });
 
 // ===============================
-// GOXTOP GAMES TEST
+// GOXTOP GAMES
 // ===============================
 
 app.get("/api/goxtop/games", async (req, res) => {
@@ -98,7 +101,7 @@ app.get("/api/goxtop/games", async (req, res) => {
     }
 
     const response = await fetch(
-      GOXTOP_BASE_URL + "/games",
+      GOXTOP_BASE_URL + "/api.v.1/games",
       {
         method: "GET",
         headers: {
@@ -152,7 +155,7 @@ app.get("/api/goxtop/products/:gameCode", async (req, res) => {
 
     const response = await fetch(
       GOXTOP_BASE_URL +
-        "/products/" +
+        "/api.v.1/products/" +
         encodeURIComponent(gameCode),
       {
         method: "GET",
