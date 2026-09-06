@@ -6,130 +6,83 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// ===============================
-// GOXTOP CONFIG
-// ===============================
-
-const GOXTOP_API_KEY = process.env.GOXTOP_API_KEY;
-const GOXTOP_SECRET_KEY = process.env.GOXTOP_SECRET_KEY;
-
-const GOXTOP_BASE_URL = "https://goxtop.com";
-
-// ===============================
-// TEMPORARY ORDER STORAGE
-// ===============================
-
 const orders = {};
 
-// Admin password
 const ADMIN_PASSWORD = "SINU1234";
 
-// ===============================
-// HOME
-// ===============================
+const GOXTOP_BASE_URL = "https://goxtop.com";
+const GOXTOP_API_KEY = process.env.GOXTOP_API_KEY;
+
+/* =========================
+   HOME
+========================= */
 
 app.get("/", (req, res) => {
   res.json({
     shop: "SINU TOPUP SHOP",
     status: "online",
-    goxtop: GOXTOP_API_KEY ? "configured" : "not_configured"
+    goxtop: GOXTOP_API_KEY ? "configured" : "missing"
   });
 });
 
-// ===============================
-// GOXTOP BALANCE
-// ===============================
+/* =========================
+   GOXTOP DEBUG REQUEST
+========================= */
 
-app.get("/api/goxtop/balance", async (req, res) => {
-  try {
-    if (!GOXTOP_API_KEY) {
-      return res.status(500).json({
-        success: false,
-        message: "GOXTOP_API_KEY not configured"
-      });
-    }
-
-    const response = await fetch(
-      GOXTOP_BASE_URL + "/api.v.1/balance",
-      {
-        method: "GET",
-        headers: {
-          "x-api-key": GOXTOP_API_KEY,
-          "Accept": "application/json"
-        }
-      }
-    );
-
-    const text = await response.text();
-
-    let data;
-
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = text;
-    }
-
-    res.status(response.status).json({
-      success: response.ok,
-      httpStatus: response.status,
-      data
-    });
-
-  } catch (error) {
-    console.error("GoXtop balance error:", error);
-
-    res.status(500).json({
-      success: false,
-      message: "GoXtop connection failed",
-      error: error.message
-    });
+async function goxtopRequest(path, options = {}) {
+  if (!GOXTOP_API_KEY) {
+    throw new Error("GOXTOP_API_KEY is missing");
   }
-});
 
-// ===============================
-// GOXTOP GAMES
-// ===============================
+  const url = GOXTOP_BASE_URL + "/api.v.1" + path;
+
+  const response = await fetch(url, {
+    ...options,
+    redirect: "manual",
+    headers: {
+      "x-api-key": GOXTOP_API_KEY,
+      "Accept": "application/json",
+      ...(options.headers || {})
+    }
+  });
+
+  const contentType = response.headers.get("content-type");
+  const location = response.headers.get("location");
+
+  const text = await response.text();
+
+  let data;
+
+  try {
+    data = JSON.parse(text);
+  } catch {
+    data = text.substring(0, 1000);
+  }
+
+  return {
+    requestedUrl: url,
+    httpStatus: response.status,
+    contentType,
+    location,
+    redirected: response.status >= 300 && response.status < 400,
+    data
+  };
+}
+
+/* =========================
+   TEST GOXTOP GAMES
+========================= */
 
 app.get("/api/goxtop/games", async (req, res) => {
   try {
-    if (!GOXTOP_API_KEY) {
-      return res.status(500).json({
-        success: false,
-        message: "GOXTOP_API_KEY not configured"
-      });
-    }
+    const result = await goxtopRequest("/games");
 
-    const response = await fetch(
-      GOXTOP_BASE_URL + "/api.v.1/games",
-      {
-        method: "GET",
-        headers: {
-          "x-api-key": GOXTOP_API_KEY,
-          "Accept": "application/json"
-        }
-      }
-    );
-
-    const text = await response.text();
-
-    let data;
-
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = text;
-    }
-
-    res.status(response.status).json({
-      success: response.ok,
-      httpStatus: response.status,
-      data
+    res.json({
+      success: true,
+      ...result
     });
 
   } catch (error) {
-    console.error("GoXtop games error:", error);
-
     res.status(500).json({
       success: false,
       message: "GoXtop connection failed",
@@ -138,53 +91,25 @@ app.get("/api/goxtop/games", async (req, res) => {
   }
 });
 
-// ===============================
-// GOXTOP PRODUCTS
-// ===============================
+/* =========================
+   TEST GOXTOP PRODUCTS
+========================= */
 
 app.get("/api/goxtop/products/:gameCode", async (req, res) => {
   try {
-    if (!GOXTOP_API_KEY) {
-      return res.status(500).json({
-        success: false,
-        message: "GOXTOP_API_KEY not configured"
-      });
-    }
+    const gameCode = encodeURIComponent(req.params.gameCode);
 
-    const gameCode = req.params.gameCode;
-
-    const response = await fetch(
-      GOXTOP_BASE_URL +
-        "/api.v.1/products/" +
-        encodeURIComponent(gameCode),
-      {
-        method: "GET",
-        headers: {
-          "x-api-key": GOXTOP_API_KEY,
-          "Accept": "application/json"
-        }
-      }
+    const result = await goxtopRequest(
+      "/products/" + gameCode
     );
 
-    const text = await response.text();
-
-    let data;
-
-    try {
-      data = JSON.parse(text);
-    } catch {
-      data = text;
-    }
-
-    res.status(response.status).json({
-      success: response.ok,
-      httpStatus: response.status,
-      data
+    res.json({
+      success: true,
+      gameCode: req.params.gameCode,
+      ...result
     });
 
   } catch (error) {
-    console.error("GoXtop products error:", error);
-
     res.status(500).json({
       success: false,
       message: "GoXtop connection failed",
@@ -193,9 +118,9 @@ app.get("/api/goxtop/products/:gameCode", async (req, res) => {
   }
 });
 
-// ===============================
-// CREATE SINU ORDER
-// ===============================
+/* =========================
+   CREATE ORDER
+========================= */
 
 app.post("/api/order", (req, res) => {
   const {
@@ -236,9 +161,9 @@ app.post("/api/order", (req, res) => {
   });
 });
 
-// ===============================
-// CHECK ORDER STATUS
-// ===============================
+/* =========================
+   CHECK ORDER STATUS
+========================= */
 
 app.get("/api/order/:orderId", (req, res) => {
   const orderId = req.params.orderId;
@@ -257,9 +182,9 @@ app.get("/api/order/:orderId", (req, res) => {
   });
 });
 
-// ===============================
-// ADMIN GET ALL ORDERS
-// ===============================
+/* =========================
+   ADMIN: GET ORDERS
+========================= */
 
 app.get("/api/admin/orders", (req, res) => {
   const password = req.headers["x-admin-password"];
@@ -277,9 +202,9 @@ app.get("/api/admin/orders", (req, res) => {
   });
 });
 
-// ===============================
-// ADMIN UPDATE ORDER
-// ===============================
+/* =========================
+   ADMIN: UPDATE STATUS
+========================= */
 
 app.put("/api/admin/order/:orderId", (req, res) => {
   const password = req.headers["x-admin-password"];
@@ -326,9 +251,9 @@ app.put("/api/admin/order/:orderId", (req, res) => {
   });
 });
 
-// ===============================
-// START SERVER
-// ===============================
+/* =========================
+   SERVER
+========================= */
 
 const PORT = process.env.PORT || 3000;
 
