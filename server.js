@@ -6,16 +6,26 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-const orders = {};
+// ===============================
+// CONFIG
+// ===============================
+
+const PORT = process.env.PORT || 3000;
 
 const ADMIN_PASSWORD = "SINU1234";
 
-const GOXTOP_BASE_URL = "https://goxtop.com";
 const GOXTOP_API_KEY = process.env.GOXTOP_API_KEY;
 
-/* =========================
-   HOME
-========================= */
+const GOXTOP_BASE_URL = "https://goxtop.com/api.v.1";
+
+const GOXTOP_CHECK_BASE_URL = "https://goxtop.com/api/check";
+
+// Temporary order storage
+const orders = {};
+
+// ===============================
+// HOME
+// ===============================
 
 app.get("/", (req, res) => {
   res.json({
@@ -25,20 +35,17 @@ app.get("/", (req, res) => {
   });
 });
 
-/* =========================
-   GOXTOP DEBUG REQUEST
-========================= */
+// ===============================
+// GOXTOP REQUEST HELPER
+// ===============================
 
-async function goxtopRequest(path, options = {}) {
+async function goxtopRequest(url, options = {}) {
   if (!GOXTOP_API_KEY) {
     throw new Error("GOXTOP_API_KEY is missing");
   }
 
-  const url = GOXTOP_BASE_URL + "/api.v.1" + path;
-
   const response = await fetch(url, {
     ...options,
-    redirect: "manual",
     headers: {
       "x-api-key": GOXTOP_API_KEY,
       "Accept": "application/json",
@@ -47,8 +54,6 @@ async function goxtopRequest(path, options = {}) {
   });
 
   const contentType = response.headers.get("content-type");
-  const location = response.headers.get("location");
-
   const text = await response.text();
 
   let data;
@@ -56,71 +61,122 @@ async function goxtopRequest(path, options = {}) {
   try {
     data = JSON.parse(text);
   } catch {
-    data = text.substring(0, 1000);
+    data = text;
   }
 
   return {
-    requestedUrl: url,
     httpStatus: response.status,
     contentType,
-    location,
-    redirected: response.status >= 300 && response.status < 400,
     data
   };
 }
 
-/* =========================
-   TEST GOXTOP GAMES
-========================= */
+// ===============================
+// PLAYER NAME CHECK
+// FREE FIRE BANGLADESH
+// ===============================
 
-app.get("/api/goxtop/games", async (req, res) => {
+app.get("/api/player-name", async (req, res) => {
   try {
-    const result = await goxtopRequest("/games");
+    const uid = String(req.query.uid || "").trim();
 
-    res.json({
+    if (!uid) {
+      return res.status(400).json({
+        success: false,
+        message: "UID দিন"
+      });
+    }
+
+    // Basic UID validation
+    if (!/^[0-9]+$/.test(uid)) {
+      return res.status(400).json({
+        success: false,
+        message: "সঠিক Player UID দিন"
+      });
+    }
+
+    if (uid.length < 5 || uid.length > 20) {
+      return res.status(400).json({
+        success: false,
+        message: "সঠিক Player UID দিন"
+      });
+    }
+
+    const url =
+      GOXTOP_CHECK_BASE_URL +
+      "/game-check?code=freefire_bd&characterId=" +
+      encodeURIComponent(uid);
+
+    const result = await goxtopRequest(url);
+
+    console.log("GoXtop Player Check:", {
+      uid,
+      status: result.httpStatus,
+      data: result.data
+    });
+
+    // GoXtop/API error
+    if (result.httpStatus < 200 || result.httpStatus >= 300) {
+      return res.status(result.httpStatus).json({
+        success: false,
+        message:
+          result.data?.message ||
+          result.data?.error ||
+          "Player check failed",
+        goxtop: result.data
+      });
+    }
+
+    const data = result.data;
+
+    // ===============================
+    // TRY TO FIND PLAYER NAME
+    // ===============================
+
+    const playerName =
+      data?.name ||
+      data?.playerName ||
+      data?.player_name ||
+      data?.username ||
+      data?.charname ||
+      data?.characterName ||
+      data?.character_name ||
+      data?.data?.name ||
+      data?.data?.playerName ||
+      data?.data?.player_name ||
+      data?.data?.username ||
+      data?.data?.charname ||
+      data?.data?.characterName ||
+      data?.data?.character_name;
+
+    // If GoXtop returns success but no recognizable name
+    if (!playerName) {
+      return res.status(502).json({
+        success: false,
+        message: "Player name পাওয়া যায়নি",
+        goxtop: data
+      });
+    }
+
+    return res.json({
       success: true,
-      ...result
+      uid,
+      playerName: String(playerName)
     });
 
   } catch (error) {
-    res.status(500).json({
+    console.error("Player Name Check Error:", error);
+
+    return res.status(500).json({
       success: false,
-      message: "GoXtop connection failed",
-      error: error.message
+      message: "GoXtop connection failed"
     });
   }
 });
 
-/* =========================
-   TEST GOXTOP PRODUCTS
-========================= */
-
-app.get("/api/goxtop/products/:gameCode", async (req, res) => {
-  try {
-    const gameCode = encodeURIComponent(req.params.gameCode);
-
-    const result = await goxtopRequest(
-      "/products/" + gameCode
-    );
-
-    res.json({
-      success: true,
-      gameCode: req.params.gameCode,
-      ...result
-    });
-
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "GoXtop connection failed",
-      error: error.message
-    });
-  }
-});
-
-/* =========================
-   CREATE ORDER
-========================= */
+// ===============================
+// CREATE ORDER
+// ===============================
 
 app.post("/api/order", (req, res) => {
   const {
@@ -161,12 +217,13 @@ app.post("/api/order", (req, res) => {
   });
 });
 
-/* =========================
-   CHECK ORDER STATUS
-========================= */
+// ===============================
+// CHECK ORDER STATUS
+// ===============================
 
 app.get("/api/order/:orderId", (req, res) => {
   const orderId = req.params.orderId;
+
   const order = orders[orderId];
 
   if (!order) {
@@ -182,9 +239,9 @@ app.get("/api/order/:orderId", (req, res) => {
   });
 });
 
-/* =========================
-   ADMIN: GET ORDERS
-========================= */
+// ===============================
+// ADMIN: GET ALL ORDERS
+// ===============================
 
 app.get("/api/admin/orders", (req, res) => {
   const password = req.headers["x-admin-password"];
@@ -202,9 +259,9 @@ app.get("/api/admin/orders", (req, res) => {
   });
 });
 
-/* =========================
-   ADMIN: UPDATE STATUS
-========================= */
+// ===============================
+// ADMIN: UPDATE ORDER STATUS
+// ===============================
 
 app.put("/api/admin/order/:orderId", (req, res) => {
   const password = req.headers["x-admin-password"];
@@ -217,6 +274,7 @@ app.put("/api/admin/order/:orderId", (req, res) => {
   }
 
   const orderId = req.params.orderId;
+
   const order = orders[orderId];
 
   if (!order) {
@@ -251,11 +309,9 @@ app.put("/api/admin/order/:orderId", (req, res) => {
   });
 });
 
-/* =========================
-   SERVER
-========================= */
-
-const PORT = process.env.PORT || 3000;
+// ===============================
+// START SERVER
+// ===============================
 
 app.listen(PORT, "0.0.0.0", () => {
   console.log("SINU TOPUP BACKEND RUNNING");
